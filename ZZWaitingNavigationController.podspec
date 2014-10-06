@@ -10,6 +10,6 @@ Pod::Spec.new do |s|
   s.source           = { :git => "https://github.com/ivanzoid/ZZWaitingNavigationController.git", :tag => s.version.to_s }
   s.platform     = :ios
   s.requires_arc = true
-  s.source_files = 'Source'
+  s.source_files = 'ZZWaitingNavigationController'
 end
 
