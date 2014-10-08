@@ -6,7 +6,7 @@
 
 ## About
 
-`ZZWaitingNavigationController` automatically postpones actions like push/pop/set view controller(s) in a case if animation is in progress and performs them when animation is finished.
+`ZZWaitingNavigationController` automatically postpones actions like push/pop/set/present/dismiss view controller(s) in a case if animation is in progress and performs them when animation is finished.
 
 ## Installation
 
