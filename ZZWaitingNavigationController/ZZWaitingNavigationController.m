@@ -177,9 +177,11 @@ static CGFloat const kPresentOrDismissTimeout = 0.55;
 - (void) printStack
 {
     ZZWaitDbgLog(@"=== stack:");
+#ifdef ZZ_WAITING_NAVIGATION_CONTROLLER_DEBUG_LOGGING
     for (ZZWaitingNavigationAction *action in pendingNavigationActions) {
         ZZWaitDbgLog(@"        %@", action);
     }
+#endif
 }
 
 - (id) stackAction:(ZZWaitingNavigationAction *)action
