@@ -6,8 +6,6 @@
 #import "ZZWaitingNavigationAction.h"
 #import "GCDTimer.h"
 
-#define ZZ_WAITING_NAVIGATION_CONTROLLER_DEBUG_LOGGING 1
-
 #ifdef ZZ_WAITING_NAVIGATION_CONTROLLER_DEBUG_LOGGING
 #   define ZZWaitDbgLog(...) NSLog(__VA_ARGS__)
 #else
