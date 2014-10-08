@@ -12,8 +12,8 @@
 #   define ZZWaitDbgLog(...)
 #endif
 
-static CGFloat const kDefaultTimout = 0.35;
-static CGFloat const kPresentOrDismissTimout = 0.55;
+static CGFloat const kDefaultTimeout = 0.35;
+static CGFloat const kPresentOrDismissTimeout = 0.55;
 
 @interface ZZWaitingNavigationController () <UINavigationControllerDelegate>
 @end
@@ -80,9 +80,9 @@ static CGFloat const kPresentOrDismissTimout = 0.55;
 
     [self unsetTimer];
     if (currentAction.actionType == NavigationActionTypePresent || currentAction.actionType == NavigationActionTypeDismiss) {
-        [self setTimerWithTimeOut:kPresentOrDismissTimout];
+        [self setTimerWithTimeOut:kPresentOrDismissTimeout];
     } else {
-        [self setTimerWithTimeOut:kDefaultTimout];
+        [self setTimerWithTimeOut:kDefaultTimeout];
     }
 }
 
@@ -157,9 +157,9 @@ static CGFloat const kPresentOrDismissTimout = 0.55;
 
     if (action.animated) {
         if (action.actionType == NavigationActionTypePresent || action.actionType == NavigationActionTypeDismiss) {
-            [self setTimerWithTimeOut:kPresentOrDismissTimout];
+            [self setTimerWithTimeOut:kPresentOrDismissTimeout];
         } else {
-            [self setTimerWithTimeOut:kDefaultTimout];
+            [self setTimerWithTimeOut:kDefaultTimeout];
         }
     }
 
