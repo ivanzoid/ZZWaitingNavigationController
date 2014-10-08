@@ -1,6 +1,6 @@
 PODS:
   - GCDTimer (1.1.0)
-  - ZZWaitingNavigationController (0.9):
+  - ZZWaitingNavigationController (1.0):
     - GCDTimer (~> 1.0)
 
 DEPENDENCIES:
@@ -12,6 +12,6 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   GCDTimer: a5992055d0391db6ff1e068b0a4ca6befd1deade
-  ZZWaitingNavigationController: 172b7ae5ffb1a8db5c6371deb4b6dd093eeeaa5d
+  ZZWaitingNavigationController: d0683899ddb869437cd414173bbb51cff9898af2
 
-COCOAPODS: 0.33.1
+COCOAPODS: 0.34.1
