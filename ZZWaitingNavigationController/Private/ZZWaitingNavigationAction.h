@@ -11,7 +11,9 @@ typedef NS_ENUM(NSInteger, NavigationActionType) {
     NavigationActionTypePop,
     NavigationActionTypePopToController,
     NavigationActionTypePopToRoot,
-    NavigationActionTypeSetControllers
+    NavigationActionTypeSetControllers,
+    NavigationActionTypePresent,
+    NavigationActionTypeDismiss
 };
 
 @interface ZZWaitingNavigationAction : NSObject
@@ -19,5 +21,5 @@ typedef NS_ENUM(NSInteger, NavigationActionType) {
 @property (nonatomic) BOOL animated;
 @property (nonatomic) UIViewController *controller;
 @property (nonatomic) NSArray *controllers; // for actionType = NavigationActionTypeSetControllers
-@property (nonatomic, copy) dispatch_block_t presentCompletionBlock; // for actionType = NavigationActionTypePresent
+@property (nonatomic, copy) dispatch_block_t completion; // for actionType = NavigationActionTypePresent or NavigationActionTypeDismiss
 @end

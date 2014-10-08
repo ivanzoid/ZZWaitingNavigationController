@@ -13,6 +13,7 @@
 @implementation AppDelegate {
     ZZWaitingNavigationController *navigationController;
     NSInteger depth;
+    BOOL presented;
 }
 
 - (UIViewController *) randomController
@@ -30,7 +31,7 @@
 {
     UIViewController *controller = [self randomController];
 
-    NSInteger action = rand() % 5;
+    NSInteger action = rand() % 7;
 
     if (action == 0) {
         depth++;
@@ -70,6 +71,23 @@
         UIViewController *controller2 = [self randomController];
         UIViewController *controller3 = [self randomController];
         [navigationController setViewControllers:@[controller, controller2, controller3] animated:YES];
+    } else if (action == 5) {
+        if (!presented) {
+            UINavigationController *navigationControllerForPresent = [[UINavigationController alloc] initWithRootViewController:controller];
+            presented = YES;
+            NSLog(@" ");
+            NSLog(@"presentViewController");
+            NSLog(@" ");
+            [navigationController presentViewController:navigationControllerForPresent animated:YES completion:nil];
+        }
+    } else if (action == 6) {
+        if (presented) {
+            presented = NO;
+            NSLog(@" ");
+            NSLog(@"dismissViewController");
+            NSLog(@" ");
+            [navigationController dismissViewControllerAnimated:YES completion:nil];
+        }
     }
 }
 
@@ -93,7 +111,7 @@
     depth = 1;
 
     __block NSInteger count = 0;
-    __block GCDTimer *timer = [GCDTimer scheduledTimerWithTimeInterval:0.2 repeats:YES block:^
+    __block GCDTimer *timer = [GCDTimer scheduledTimerWithTimeInterval:0.1 repeats:YES block:^
     {
         NSLog(@"(action %d)", count);
 

@@ -12,7 +12,11 @@
 
 - (NSString *) description
 {
-    if (self.actionType == NavigationActionTypePop)
+    if (self.actionType == NavigationActionTypePush)
+    {
+        return [NSString stringWithFormat:@"pushViewController \"%@\" %p", self.controller.title, self.controller];
+    }
+    else if (self.actionType == NavigationActionTypePop)
     {
         return @"popViewController";
     }
@@ -24,10 +28,6 @@
     {
         return [NSString stringWithFormat:@"popToViewController \"%@\" %p", self.controller.title, self.controller];
     }
-    else if (self.actionType == NavigationActionTypePush)
-    {
-        return [NSString stringWithFormat:@"pushViewController \"%@\" %p", self.controller.title, self.controller];
-    }
     else if (self.actionType == NavigationActionTypeSetControllers)
     {
         NSMutableArray *descriptions = [NSMutableArray new];
@@ -37,7 +37,16 @@
         
         return [NSString stringWithFormat:@"setViewControllers %@", [descriptions componentsJoinedByString:@", "]];
     }
+    else if (self.actionType == NavigationActionTypePresent)
+    {
+        return [NSString stringWithFormat:@"presentViewController \"%@\" %p", self.controller.title, self.controller];
+    }
+    else if (self.actionType == NavigationActionTypeDismiss)
+    {
+        return [NSString stringWithFormat:@"dismissViewController"];
+    }
     else {
+        NSAssert(NO, nil);
         return @"";
     }
 }

@@ -6,11 +6,16 @@
 #import "ZZWaitingNavigationAction.h"
 #import "GCDTimer.h"
 
+#define ZZ_WAITING_NAVIGATION_CONTROLLER_DEBUG_LOGGING 1
+
 #ifdef ZZ_WAITING_NAVIGATION_CONTROLLER_DEBUG_LOGGING
 #   define ZZWaitDbgLog(...) NSLog(__VA_ARGS__)
 #else
 #   define ZZWaitDbgLog(...)
 #endif
+
+static CGFloat const kDefaultTimout = 0.35;
+static CGFloat const kPresentOrDismissTimout = 0.55;
 
 @interface ZZWaitingNavigationController () <UINavigationControllerDelegate>
 @end
@@ -20,6 +25,7 @@
     NSMutableArray *pendingNavigationActions;
     BOOL transitionInProgress;
     NSMutableArray *virtualViewControllers;
+    ZZWaitingNavigationAction *currentAction;
 }
 
 - (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -51,10 +57,11 @@
     self.delegate = self;
 }
 
-- (void) setTimer
+- (void) setTimerWithTimeOut:(NSTimeInterval)timeout
 {
-    transitionResetTimer = [GCDTimer scheduledTimerWithTimeInterval:0.35 repeats:NO block:^{
+    transitionResetTimer = [GCDTimer scheduledTimerWithTimeInterval:timeout repeats:NO block:^{
         ZZWaitDbgLog(@"*** Timer did expire ***");
+        transitionResetTimer = nil;
         if (!transitionInProgress) {
             [self performNextPendingNavigationActionIfNeeded];
         }
@@ -70,26 +77,31 @@
 - (void) navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
     ZZWaitDbgLog(@"--- willShowViewController \"%@\" (%p)", viewController.title, viewController);
-    
+
     transitionInProgress = YES;
 
     [self unsetTimer];
-    [self setTimer];
+    if (currentAction.actionType == NavigationActionTypePresent || currentAction.actionType == NavigationActionTypeDismiss) {
+        [self setTimerWithTimeOut:kPresentOrDismissTimout];
+    } else {
+        [self setTimerWithTimeOut:kDefaultTimout];
+    }
 }
 
 - (void) navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
     ZZWaitDbgLog(@"--- didShowViewController \"%@\" (%p)", viewController.title, viewController);
-    
+
     transitionInProgress = NO;
 
-    [self unsetTimer];
     [self performNextPendingNavigationActionIfNeeded];
 }
 
 - (id) performAction:(ZZWaitingNavigationAction *)action
 {
     id result = nil;
+
+    currentAction = action;
 
     ZZWaitDbgLog(@" ");
     ZZWaitDbgLog(@"!!! performing %@", action);
@@ -108,7 +120,11 @@
     ZZWaitDbgLog(@"current virtual controllers: [%@]", [virtualControllersDescriptions componentsJoinedByString:@", "]);
     ZZWaitDbgLog(@" ");
 
-    if (action.actionType == NavigationActionTypePop)
+    if (action.actionType == NavigationActionTypePush)
+    {
+        [super pushViewController:action.controller animated:action.animated];
+    }
+    else if (action.actionType == NavigationActionTypePop)
     {
         result = [super popViewControllerAnimated:action.animated];
     }
@@ -120,10 +136,6 @@
     {
         [super popToViewController:action.controller animated:action.animated];
     }
-    else if (action.actionType == NavigationActionTypePush)
-    {
-        [super pushViewController:action.controller animated:action.animated];
-    }
     else if (action.actionType == NavigationActionTypeSetControllers)
     {
         NSMutableArray *ptrs = [NSMutableArray new];
@@ -133,12 +145,24 @@
 
         [super setViewControllers:action.controllers animated:action.animated];
     }
+    else if (action.actionType == NavigationActionTypePresent)
+    {
+        [super presentViewController:action.controller animated:action.animated completion:action.completion];
+    }
+    else if (action.actionType == NavigationActionTypeDismiss)
+    {
+        [super dismissViewControllerAnimated:action.animated completion:action.completion];
+    }
     else {
         NSAssert(NO, nil);
     }
 
     if (action.animated) {
-        [self setTimer];
+        if (action.actionType == NavigationActionTypePresent || action.actionType == NavigationActionTypeDismiss) {
+            [self setTimerWithTimeOut:kPresentOrDismissTimout];
+        } else {
+            [self setTimerWithTimeOut:kDefaultTimout];
+        }
     }
 
     return result;
@@ -230,8 +254,12 @@
 
 - (void) performNextPendingNavigationActionIfNeeded
 {
-    if ([pendingNavigationActions count]) {
-        [self doPerformNextPendingNavigationAction];
+    if (!transitionInProgress && !transitionResetTimer)
+    {
+        currentAction = nil;
+        if ([pendingNavigationActions count]) {
+            [self doPerformNextPendingNavigationAction];
+        }
     }
 }
 
@@ -284,6 +312,27 @@
     action.actionType = NavigationActionTypeSetControllers;
     action.controllers = viewControllers;
     action.animated = animated;
+
+    [self performOrStackAction:action];
+}
+
+- (void) presentViewController:(UIViewController *)viewControllerToPresent animated:(BOOL)animated completion:(dispatch_block_t)completion
+{
+    ZZWaitingNavigationAction *action = [ZZWaitingNavigationAction new];
+    action.actionType = NavigationActionTypePresent;
+    action.controller = viewControllerToPresent;
+    action.animated = animated;
+    action.completion = completion;
+
+    [self performOrStackAction:action];
+}
+
+- (void) dismissViewControllerAnimated:(BOOL)animated completion:(dispatch_block_t)completion
+{
+    ZZWaitingNavigationAction *action = [ZZWaitingNavigationAction new];
+    action.actionType = NavigationActionTypeDismiss;
+    action.animated = animated;
+    action.completion = completion;
 
     [self performOrStackAction:action];
 }
